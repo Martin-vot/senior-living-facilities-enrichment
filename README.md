@@ -7,7 +7,7 @@
 
 A robust, modular web scraping and enrichment pipeline built with **Python** and **Playwright**. Designed to process **over 200,000+ senior living facility records** from publicly available senior living directories, automatically enriching them with validated contact information (direct phone numbers and websites).
 
-![Pipeline Workflow](scrshots/pipeline.png)
+![Pipeline Workflow](pipeline.png)
 
 ---
 
