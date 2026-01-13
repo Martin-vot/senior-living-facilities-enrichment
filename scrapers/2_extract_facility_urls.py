@@ -55,7 +55,7 @@ async def scrape_community_links_from_city(playwright, city_url: str, writer, fa
             for card in cards:
                 href = await card.get_attribute("href")
                 if href:
-                    full_url = "https://www.aplaceformom.com" + href
+                    full_url = "https://www.example.com" + href
                     writer.writerow([full_url])
         except Exception as e:
             print(f"Failed for {city_url}: {e}")
