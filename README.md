@@ -14,7 +14,7 @@ This project automates the collection of facility listings from public state hea
 ## 📊 Pipeline Overview
 
 ```
-[Pipeline Workflow](pipeline.png)
+![Pipeline Workflow](pipeline.png)
 ```
 
 ---
@@ -47,7 +47,7 @@ Public-Data-Aggregator/
 └── requirements.txt
 ```
 
-[Pipeline Workflow](pipeline (2).png)
+![Pipeline Workflow](pipeline (2).png)
 
 ---
 
