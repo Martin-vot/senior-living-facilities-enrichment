@@ -1,127 +1,106 @@
-# 🏥 Senior Living Data Enrichment Pipeline
+# 🏛️ Senior Living Public Data Aggregator
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?style=for-the-badge&logo=python)
-![Playwright](https://img.shields.io/badge/Playwright-Supported-green?style=for-the-badge&logo=playwright)
+![OSINT](https://img.shields.io/badge/Data-OSINT-critical?style=for-the-badge)
 ![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-150458?style=for-the-badge&logo=pandas)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
-A robust, modular web scraping and enrichment pipeline built with **Python** and **Playwright**. Designed to process **over 200,000+ senior living facility records** from publicly available senior living directories, automatically enriching them with validated contact information (direct phone numbers and websites).
+A transparent data aggregation pipeline designed to compile, normalize, and enrich senior living facility data **strictly from publicly available government and state verified directories**.
 
-![Pipeline Workflow](pipeline.png)
+This project automates the collection of facility listings from public state health department registers (e.g., California Department of Social Services, Florida Agency for Health Care Administration) and enriches them with publicly accessible contact information using AI-driven verification.
+
+---
+
+## 📊 Pipeline Overview
+
+```mermaid
+graph TD
+    A[State .gov Directories] -->|Ingestion| B(State-Specific Parsers)
+    B -->|Normalization| C{Master Registry}
+    C -->|Public Web Verification| D[Playwright / AI Enrichment]
+    D -->|Validation| E[Final Verified Dataset]
+    E -->|Output| F[Analysis Ready CSV/XLSX]
+```
 
 ---
 
 ## 🚀 Key Features
 
-*   **⚡ High-Volume Processing**: Capable of handling hundreds of thousands of records efficiently.
-*   **🛡️ Anti-Blocking Architecture**: Implements User-Agent rotation, intelligent delays, and session management.
-*   **🕹️ Full Concurrency Control**: Uses semaphores and throttling to balance speed with server load protocols.
-*   **🔄 Resilient Logic**: Robust retry mechanisms for failed requests (`failed_urls.csv`) and fully restartable modular steps.
-*   **📊 Clean Data Output**: Exports structured, analysis-ready data in CSV and Excel formats.
+*   **🏛️ Public Source Compliance**: Aggregates data solely from official state government website directories (.gov / .org).
+*   **📊 Data Normalization**: Standardizes disparate state formats into a unified schema (License #, Capacity, Facility Type).
+*   **🤖 AI-Powered Enrichment**: Uses LLM (Grok/Gemini) to cross-reference facilities with public web data for valid contact info.
+*   **🛡️ Verification**: Includes automated validation steps to ensure data accuracy against actual public records.
+*   **📈 High Precision**: Focuses on data quality and traceability over brute-force scraping.
 
 ---
 
 ## 📁 Project Structure
 
 ```text
-Senior-Living-Scraper/
+Public-Data-Aggregator/
 ├── scrapers/
-│   ├── 1_parse_directory_index.py   # Parses public index/sitemaps for state/location links
-│   ├── 2_extract_facility_links.py  # Extracts individual facility profile URLs
-│   ├── 3_scrape_facility_details.py # Scrapes core facility data (Name, Address, Type)
-│   └── 4_enrich_contacts.py         # Enriches records with Phone/Website via external verification
+│   ├── 1a_florida_facility_parser.py      # Florida AHCA directory parser
+│   ├── 1b_california_facility_parser.py   # California CDSS directory parser
+│   ├── ...                                # Other state parsers 
+│   ├── 2_facility_data_merger.py          # Schema normalization and merging
+│   ├── 4_enrich_contacts.py               # Playwright-based contact discovery
+│   └── 4b_enrich_ai.py                    # AI-driven data verification & details
 ├── data/
-│   ├── index_urls.csv
-│   ├── facility_links.csv
-│   ├── facility_data_enriched.xlsx  # Final output
-│   └── failed_urls.csv
+│   ├── 1_raw_state_data/                  # Original files from government portals
+│   ├── 3_normalized_registry/             # Merged and cleaned master lists
+│   └── 4_final_enriched/                  # Production-ready datasets
 └── requirements.txt
 ```
+
+![Pipeline Workflow](pipeline (2).png)
 
 ---
 
 ## 🛠️ Workflows
 
-### 1️⃣ Parse Directory Index
-**`scrapers/1_parse_directory_index.py`**
-Parses the main directory structure (e.g., sitemaps, state listings) to identify all relevant location pages.
-*   **Output**: `data/index_urls.csv`
+### 1️⃣ Public Registry Ingestion
+*   **Source**: Official state provider lists (FOIA compliant).
+*   **Action**: Parses raw tabular data (CSV/PDF/HTML) from state portals.
+*   **Details**: Captures License Number, Status, and official Capacity.
 
-### 2️⃣ Extract Facility Links
-**`scrapers/2_extract_facility_links.py`**
-Iterates through location pages to collect specific profile URLs for every facility.
-*   **Output**: `data/facility_links.csv`
+### 2️⃣ Data Consolidation & Normalization
+*   Combines disparate state datasets into a single unified master list.
+*   Removes duplicates and standardizes address formatting using `usaddress` or similar logic.
 
-### 3️⃣ Scrape Facility Details
-**`scrapers/3_scrape_facility_details.py`**
-Visits each facility profile to extract baseline data:
-*   **Facility Name**
-*   **Full Address & State**
-*   **Care Types** (Assisted Living, Memory Care, etc.)
-*   **Output**: `data/raw_facility_data.xlsx`
+### 3️⃣ Public Contact Verification
+*   **Method**: Uses Playwright to visit official facility websites found in public records.
+*   **Goal**: Append phone numbers and websites only when they are prominently displayed as public info.
 
-### 4️⃣ Enrich Contact Information
-**`scrapers/4_enrich_contacts.py`**
-Performs automated search and validation to append missing contact details:
-*   **Direct Phone Number**
-*   **Official Website URL**
-*   **Output**: `data/enriched_facility_data.xlsx`
+### 4️⃣ AI-Assisted Enrichment (Verification)
+*   **Method**: Leverages LLMs to parse unstructured public content for specific details (e.g., specialized care programs).
+*   **Logic**: Validates that the found contact information matches the entity name from the government registry.
 
 ---
 
-## 📊 Performance & Samples
-
-The pipeline delivers high-accuracy enrichment metrics suitable for enterprise lead generation.
-
-### Anonymized Sample Output
-
-| Facility Name | Address | Care Type | Phone | Website |
-| :--- | :--- | :--- | :--- | :--- |
-| *Sample Community A* | *123 Oak St, Austin, TX* | Assisted Living | `+1 (512) 555-0123` | `www.sample-a.com` |
-| *Sample Community B* | *456 Pine Ave, Denver, CO* | Memory Care | `+1 (303) 555-0199` | `www.sample-b.com` |
-| *Sample Community C* | *789 Palm Dr, Miami, FL* | Independent Living | `+1 (305) 555-0155` | `www.sample-c.com` |
-
-### Production Metrics (Demo Run)
-
-> [!NOTE]
-> Metrics based on a recent full-scale dataset execution.
+## 📈 Quality Metrics (Current Status)
 
 | Metric | Result |
 | :--- | :--- |
-| **Total Facilities Processed** | **200,000+** |
-| **Phone Enrichment Rate** | **~85–90%** |
-| **Website Enrichment Rate** | **~75–85%** |
-| **Pipeline Duration** | < 48 Hours |
+| **Total Verified Records** | **50,000+** |
+| **Source Reliability** | **100% Government Verified** |
+| **Phone Match Rate** | **~85% (AI Verified)** |
+| **Website Match Rate** | **~80% (Manual/AI Spot-checked)** |
+| **Update Cycle** | Quarterly |
 
 ---
 
-## 📦 Getting Started
+## 📊 Data Privacy & Compliance Statement
 
-### Prerequisites
+This tool is designed for **OSINT (Open Source Intelligence)** purposes.
+*   **No Private Data**: Only aggregates business/facility information explicitly validated as public record.
+*   **Respectful Usage**: All enrichment follows `robots.txt` policies and implements intelligent rate limiting.
+*   **Source Transparency**: Every record can be traced back to its originating government directory for audit purposes.
 
-*   Python 3.9+
-*   Playwright
+---
 
-### Installation
+## 📝 License
 
-```bash
-git clone https://github.com/your-username/senior-living-scraper.git
-cd senior-living-scraper
-
-pip install -r requirements.txt
-playwright install
-```
-
-### Usage
-
-Run the pipeline steps sequentially:
-
-```bash
-python scrapers/1_parse_directory_index.py
-python scrapers/2_extract_facility_links.py
-python scrapers/3_scrape_facility_details.py
-python scrapers/4_enrich_contacts.py
-```
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
@@ -138,11 +117,3 @@ Specializing in high-volume web scraping, automated data enrichment, and ETL pip
 📈 B2B Lead Generation  
 
 [**🔗 LinkedIn**](https://www.linkedin.com/in/martin-vot-5377263a3/) &nbsp;|&nbsp; [**🌐 Website**](https://martin.vot.cz/)
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-Full production pipeline available for custom projects – contact for details.
