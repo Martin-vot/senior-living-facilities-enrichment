@@ -12,7 +12,7 @@ This project automates the collection of facility listings from public state hea
 ---
 
 ## 📊 Pipeline Overview
-![Pipeline Workflow](pipeline.png)
+![Pipeline Workflow](pipeline_graph.png)
 
 ---
 
